@@ -269,7 +269,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.CheckConstraint(
-            "item_price >= 0", name=op.f("ck_order_items_postive_item_price")
+            "item_price >= 0", name=op.f("ck_order_items_positive_item_price")
         ),
         sa.CheckConstraint(
             "quantity > 0", name=op.f("ck_order_items_minimum_one_quantity")

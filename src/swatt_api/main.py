@@ -254,7 +254,7 @@ class OrderItem(Base):
 
     __table_args__ = (
         # Price cannot be negative.
-        CheckConstraint("item_price >= 0", name="postive_item_price"),
+        CheckConstraint("item_price >= 0", name="positive_item_price"),
         # Quantity minimum is one.
         CheckConstraint("quantity > 0", name="minimum_one_quantity"),
     )

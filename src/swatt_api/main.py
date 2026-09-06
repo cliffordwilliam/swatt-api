@@ -221,7 +221,7 @@ class Order(Base):
             "delivery_date >= order_date", name="delivery_not_before_order"
         ),
         # Shipping cost cannot be negative.
-        CheckConstraint("shipping_cost >= 0", name="positive_shipping_cost"),
+        CheckConstraint("shipping_cost >= 0", name="shipping_cost_positive"),
     )
 
 
@@ -254,9 +254,9 @@ class OrderItem(Base):
 
     __table_args__ = (
         # Price cannot be negative.
-        CheckConstraint("item_price >= 0", name="positive_item_price"),
+        CheckConstraint("item_price >= 0", name="item_price_positive"),
         # Quantity minimum is one.
-        CheckConstraint("quantity > 0", name="minimum_one_quantity"),
+        CheckConstraint("quantity > 0", name="quantity_minimum_one"),
     )
 
 

@@ -154,7 +154,7 @@ def upgrade() -> None:
             name=op.f("ck_orders_delivery_not_before_order"),
         ),
         sa.CheckConstraint(
-            "shipping_cost >= 0", name=op.f("ck_orders_positive_shipping_cost")
+            "shipping_cost >= 0", name=op.f("ck_orders_shipping_cost_positive")
         ),
         sa.ForeignKeyConstraint(
             ["buyer_id"], ["persons.id"], name=op.f("fk_orders_buyer_id_persons")
@@ -269,10 +269,10 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.CheckConstraint(
-            "item_price >= 0", name=op.f("ck_order_items_positive_item_price")
+            "item_price >= 0", name=op.f("ck_order_items_item_price_positive")
         ),
         sa.CheckConstraint(
-            "quantity > 0", name=op.f("ck_order_items_minimum_one_quantity")
+            "quantity > 0", name=op.f("ck_order_items_quantity_minimum_one")
         ),
         sa.ForeignKeyConstraint(
             ["item_id"], ["items.id"], name=op.f("fk_order_items_item_id_items")

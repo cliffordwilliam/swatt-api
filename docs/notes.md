@@ -14,6 +14,8 @@ The CURRENT_TIMESTAMP here uses UTC already so there are no conversion that is g
 
 In here, I need to explicitly name the check constraint. This is also good because if a column has more than one constraint then explicit naming is needed to prevent naming conflict.
 
+Use this format, <column>_<description>, for example: item_price_positive
+
 ## Commit message format
 
 Here is an example:

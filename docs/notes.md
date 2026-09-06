@@ -92,3 +92,7 @@ This uses uv built in feature to read value from env memory block. It uses the -
 ## Alembic config
 
 Alembic already uses the ini getter and setter in many places, so the smaller change would be to just set the .ini value using the env block value rather than replacing all references of the .ini file with the direct env block value.
+
+## Ruff issue with string types in mapped classes
+
+I need to add # noqa: UP037 when I have the following Mapped[list["PersonPhone"]]. There is another way where I have to import something but I figured just a few character comments is fine rather than introducing more things. This way its just a few comment character while keeping the codebase aligned with how the documentation wants it. This avoids odd suprises in the future.

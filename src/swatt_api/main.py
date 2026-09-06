@@ -108,6 +108,17 @@ class Person(Base):
     phones: Mapped[list["PersonPhone"]] = relationship(back_populates="person")  # noqa: UP037
     addresses: Mapped[list["PersonAddress"]] = relationship(back_populates="person")  # noqa: UP037
 
+    # Business requirement states that they work with
+    # lowercase, no extra or trailing white spaces, unique person names.
+    # So the database here enforces only the above kind of name can ever land here, otherwise it rejects.
+    __table_args__ = (
+        CheckConstraint(
+            r"name = LOWER(TRIM(name)) AND name != '' AND name !~ '\s{2,}'",
+            name="name_normalized",
+        ),
+        UniqueConstraint("name"),
+    )
+
 
 class PersonPhone(Base):
     # This represent a person phone.

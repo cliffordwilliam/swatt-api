@@ -260,6 +260,7 @@ class OrderItem(Base):
     )
 
 
-for table in Base.metadata.tables.values():
-    print(CreateTable(table).compile(dialect=psycopg.dialect()).string)
-    print(table.indexes)
+if __name__ == "__main__":
+    for table in Base.metadata.tables.values():
+        print(CreateTable(table).compile(dialect=psycopg.dialect()).string)
+        print(table.indexes)

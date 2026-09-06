@@ -101,11 +101,15 @@ class Person(Base):
     # Filled using Android contact picker.
     name: Mapped[str] = mapped_column(String(255))
 
+    # Filled using Android contact picker.
+    # Business requirement states that one person only ever have one phone only.
+    # And it must not be unique since people can share phone number.
+    phone_number: Mapped[str] = mapped_column(String(25))
+
     created_at: Mapped[timestamp]
     updated_at: Mapped[timestamp]
 
     # Relations.
-    phones: Mapped[list["PersonPhone"]] = relationship(back_populates="person")  # noqa: UP037
     addresses: Mapped[list["PersonAddress"]] = relationship(back_populates="person")  # noqa: UP037
 
     # Business requirement states that they work with
@@ -117,32 +121,6 @@ class Person(Base):
             name="name_normalized",
         ),
         UniqueConstraint("name"),
-    )
-
-
-class PersonPhone(Base):
-    # This represent a person phone.
-    __tablename__ = "person_phones"
-
-    # Person does not have many phones.
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    # Filled using Android contact picker.
-    # Unique under a person namespace only using UniqueConstraint.
-    phone_number: Mapped[str] = mapped_column(String(25))
-
-    # Belong to one person.
-    person_id = mapped_column(ForeignKey("persons.id"))
-
-    created_at: Mapped[timestamp]
-    updated_at: Mapped[timestamp]
-
-    # Relations.
-    person: Mapped["Person"] = relationship(back_populates="phones")  # noqa: UP037
-
-    __table_args__ = (
-        # Ensure no duplicate link from person A to phone A more than once.
-        UniqueConstraint("person_id", "phone_number"),
     )
 
 

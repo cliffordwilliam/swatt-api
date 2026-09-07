@@ -38,6 +38,21 @@ timestamp = Annotated[
 ]
 
 
+def guard_sloppy_typed_input(column_name):
+    # Must be lower case, no leading/trailing space, no multiple space between words.
+    # Only letters, digits, space, and . - ' only (adjust as needed).
+    pattern = r"^[a-z0-9.'-]+( [a-z0-9.'-]+)*$"
+
+    # Needs to escape since technically we want to write this way e.g.:
+    # f"{column_name} ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'",
+    escaped_pattern = pattern.replace("'", "''")
+
+    return CheckConstraint(
+        f"{column_name} ~ '{escaped_pattern}'",
+        name=f"{column_name}_normalized",
+    )
+
+
 class Item(Base):
     # This table represents store items.
     __tablename__ = "items"
@@ -61,6 +76,7 @@ class Item(Base):
     __table_args__ = (
         # My store items cannot have negative price.
         CheckConstraint("price>=0", name="price_positive"),
+        guard_sloppy_typed_input("name"),
     )
 
 
@@ -72,6 +88,8 @@ class DeliveryMethod(Base):
     created_at: Mapped[timestamp]
     updated_at: Mapped[timestamp]
 
+    __table_args__ = (guard_sloppy_typed_input("name"),)
+
 
 class PaymentMethod(Base):
     # Lookup table. Records may be added over time but are never removed by staff.
@@ -80,6 +98,8 @@ class PaymentMethod(Base):
     name: Mapped[str] = mapped_column(String(30), unique=True)
     created_at: Mapped[timestamp]
     updated_at: Mapped[timestamp]
+
+    __table_args__ = (guard_sloppy_typed_input("name"),)
 
 
 class OrderStatus(Base):
@@ -90,6 +110,8 @@ class OrderStatus(Base):
     created_at: Mapped[timestamp]
     updated_at: Mapped[timestamp]
 
+    __table_args__ = (guard_sloppy_typed_input("name"),)
+
 
 class Person(Base):
     # Represents people who buy and receive items.
@@ -99,7 +121,7 @@ class Person(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     # Filled using Android contact picker.
-    name: Mapped[str] = mapped_column(String(255))
+    name: Mapped[str] = mapped_column(String(255), unique=True)
 
     # Filled using Android contact picker.
     # Business requirement states that one person only ever have one phone only.
@@ -115,13 +137,7 @@ class Person(Base):
     # Business requirement states that they work with
     # lowercase, no extra or trailing white spaces, unique person names.
     # So the database here enforces only the above kind of name can ever land here, otherwise it rejects.
-    __table_args__ = (
-        CheckConstraint(
-            r"name = LOWER(TRIM(name)) AND name != '' AND name !~ '\s{2,}'",
-            name="name_normalized",
-        ),
-        UniqueConstraint("name"),
-    )
+    __table_args__ = (guard_sloppy_typed_input("name"),)
 
 
 class PersonAddress(Base):
@@ -151,11 +167,7 @@ class PersonAddress(Base):
     __table_args__ = (
         # Ensure no duplicate link from person A to address A more than once.
         UniqueConstraint("person_id", "address"),
-        # Input entry protection from accidental whitespaces.
-        CheckConstraint(
-            "address != '' AND address = TRIM(address)",
-            name="address_no_stray_whitespace",
-        ),
+        guard_sloppy_typed_input("address"),
     )
 
 

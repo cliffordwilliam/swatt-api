@@ -1,8 +1,8 @@
 """create initial tables
 
-Revision ID: f02be848f6ee
+Revision ID: acbff8dfabc7
 Revises: 
-Create Date: 2026-09-06 21:39:00.386267
+Create Date: 2026-09-08 00:47:51.681906
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f02be848f6ee'
+revision: str = 'acbff8dfabc7'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,6 +26,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=30), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.CheckConstraint("name ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'", name=op.f('ck_delivery_methods_name_normalized')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_delivery_methods')),
     sa.UniqueConstraint('name', name=op.f('uq_delivery_methods_name'))
     )
@@ -35,6 +36,7 @@ def upgrade() -> None:
     sa.Column('price', sa.BigInteger(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.CheckConstraint("name ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'", name=op.f('ck_items_name_normalized')),
     sa.CheckConstraint('price>=0', name=op.f('ck_items_price_positive')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_items')),
     sa.UniqueConstraint('name', name=op.f('uq_items_name'))
@@ -44,6 +46,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=30), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.CheckConstraint("name ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'", name=op.f('ck_order_statuses_name_normalized')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_order_statuses')),
     sa.UniqueConstraint('name', name=op.f('uq_order_statuses_name'))
     )
@@ -52,15 +55,17 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=30), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.CheckConstraint("name ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'", name=op.f('ck_payment_methods_name_normalized')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_payment_methods')),
     sa.UniqueConstraint('name', name=op.f('uq_payment_methods_name'))
     )
     op.create_table('persons',
     sa.Column('id', sa.BigInteger(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
+    sa.Column('phone_number', sa.String(length=25), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-    sa.CheckConstraint("name = LOWER(TRIM(name)) AND name != '' AND name !~ '\\s{2,}'", name=op.f('ck_persons_name_normalized')),
+    sa.CheckConstraint("name ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'", name=op.f('ck_persons_name_normalized')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_persons')),
     sa.UniqueConstraint('name', name=op.f('uq_persons_name'))
     )
@@ -101,20 +106,10 @@ def upgrade() -> None:
     sa.Column('person_id', sa.BigInteger(), nullable=True),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-    sa.CheckConstraint("address != '' AND address = TRIM(address)", name=op.f('ck_person_addresses_address_no_stray_whitespace')),
+    sa.CheckConstraint("address ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'", name=op.f('ck_person_addresses_address_normalized')),
     sa.ForeignKeyConstraint(['person_id'], ['persons.id'], name=op.f('fk_person_addresses_person_id_persons')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_person_addresses')),
     sa.UniqueConstraint('person_id', 'address', name=op.f('uq_person_addresses_person_id'))
-    )
-    op.create_table('person_phones',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('phone_number', sa.String(length=25), nullable=False),
-    sa.Column('person_id', sa.BigInteger(), nullable=True),
-    sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-    sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-    sa.ForeignKeyConstraint(['person_id'], ['persons.id'], name=op.f('fk_person_phones_person_id_persons')),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk_person_phones')),
-    sa.UniqueConstraint('person_id', 'phone_number', name=op.f('uq_person_phones_person_id'))
     )
     op.create_table('order_items',
     sa.Column('order_id', sa.BigInteger(), nullable=False),
@@ -138,7 +133,6 @@ def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('order_items')
-    op.drop_table('person_phones')
     op.drop_table('person_addresses')
     op.drop_table('orders')
     op.drop_table('persons')

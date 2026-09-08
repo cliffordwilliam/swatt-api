@@ -89,6 +89,7 @@ def upgrade() -> None:
     sa.Column('note', sa.Text(), nullable=True),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.CheckConstraint("order_code ~ '^[a-z0-9.''-]+( [a-z0-9.''-]+)*$'", name=op.f('ck_orders_order_code_normalized')),
     sa.CheckConstraint('delivery_date >= order_date', name=op.f('ck_orders_delivery_not_before_order')),
     sa.CheckConstraint('shipping_cost >= 0', name=op.f('ck_orders_shipping_cost_positive')),
     sa.ForeignKeyConstraint(['buyer_id'], ['persons.id'], name=op.f('fk_orders_buyer_id_persons')),

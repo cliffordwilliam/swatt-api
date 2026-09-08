@@ -223,6 +223,9 @@ class Order(Base):
         ),
         # Shipping cost cannot be negative.
         CheckConstraint("shipping_cost >= 0", name="shipping_cost_positive"),
+        # Staff would use this to search by "nickname"
+        # so if its sloppy it won't show up in search and they will complain again.
+        guard_sloppy_typed_input("order_code"),
     )
 
 

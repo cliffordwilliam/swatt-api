@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from alembic import command
-from src.swatt_api.config import test_postgresql_url
+from swatt_api.config import test_postgresql_url
 
 
 @pytest.fixture(scope="session")

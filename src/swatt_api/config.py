@@ -5,3 +5,4 @@ from os import getenv
 
 # TODO: Raise when value is not valid.
 postgresql_url = getenv("POSTGRESQL_URL")
+test_postgresql_url = getenv("TEST_POSTGRESQL_URL")

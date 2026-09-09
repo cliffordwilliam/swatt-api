@@ -96,3 +96,8 @@ Alembic already uses the ini getter and setter in many places, so the smaller ch
 ## Ruff issue with string types in mapped classes
 
 I need to add # noqa: UP037 when I have the following Mapped[list["PersonPhone"]]. There is another way where I have to import something but I figured just a few character comments is fine rather than introducing more things. This way its just a few comment character while keeping the codebase aligned with how the documentation wants it. This avoids odd suprises in the future.
+
+
+## How testing works using pytest fixture with alembic
+
+So on start of the whole test, it needs to create test engine and call alembic migration. On whole test ends it would dispose engine. Per test gotta setup fresh session, on each test ends gotta cleanup the session, undo any changes in database state, connection and transaction. This is so that each test is always provided a clean slate session, just seed, then go for any tests it needs right there.

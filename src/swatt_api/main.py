@@ -149,6 +149,8 @@ class PersonAddress(Base):
 
     # Filled using Android contact picker.
     # Unique under a person namespace only using UniqueConstraint.
+    # Business requirement does not need a unify logic,
+    # the same place can be referred by many names.
     address: Mapped[str] = mapped_column(Text)
 
     # This one is filled using map API, places pin coordinate.
@@ -188,6 +190,11 @@ class Order(Base):
     delivery_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
 
     # Buyer pointer and on creation snapshot value.
+    # Business requirement says that person is the real time state representation,
+    # but the snapshot is a mark made on the order that may be updated..
+    # Display both existing and Android contact options,
+    # either add or use existing person.
+    # Then let them be able to adjust the snapshot value if need be.
     buyer_id = mapped_column(ForeignKey("persons.id"))
     buyer_name: Mapped[str] = mapped_column(String(255))
     buyer_phone: Mapped[str] = mapped_column(String(25))
@@ -200,6 +207,8 @@ class Order(Base):
     recipient_address: Mapped[str] = mapped_column(Text)
 
     # Lookup table pointers.
+    # Display existing or add new one option. If they do not like it,
+    # they can switch or make a new one but never updates or delete existing.
     delivery_method_id = mapped_column(ForeignKey("delivery_methods.id"))
     payment_method_id = mapped_column(ForeignKey("payment_methods.id"))
     order_status_id = mapped_column(ForeignKey("order_statuses.id"))
@@ -218,6 +227,7 @@ class Order(Base):
 
     __table_args__ = (
         # Must order first, then deliver.
+        # Business requirement says that same day order and delivery is a thing.
         CheckConstraint(
             "delivery_date >= order_date", name="delivery_not_before_order"
         ),
@@ -239,9 +249,11 @@ class OrderItem(Base):
 
     # Item attribute snapshot at order time to respect history.
     item_name: Mapped[str] = mapped_column(String(100))
+    # Business requirement says that discount is applied via update here.
     item_price: Mapped[int] = mapped_column(BigInteger)
 
     # Quantity. No one would order too much anyways so int is fine here.
+    # Business requirement says that its always whole numbers.
     quantity: Mapped[int]
 
     # Money.

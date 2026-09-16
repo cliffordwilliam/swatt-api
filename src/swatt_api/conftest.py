@@ -21,11 +21,11 @@ def test_engine():
 @pytest.fixture
 def test_session(test_engine):
     test_connection = test_engine.connect()
-    test_outer_transaction = test_connection.begin()
+    test_transaction = test_connection.begin()
     test_session = Session(
         bind=test_connection, join_transaction_mode="create_savepoint"
     )
     yield test_session
     test_session.close()
-    test_outer_transaction.rollback()
+    test_transaction.rollback()
     test_connection.close()

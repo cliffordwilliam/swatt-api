@@ -108,3 +108,8 @@ How SAVEPOINT works in a nutshell. Think of transaction as a private workbench, 
 ## Errors from mapped classes like from its constraints
 
 The documentations only mentions error classes caused by dbapi. It does not mention like what error would a table constraint throw, so I need to do trial and error by running to cause a deliberate error to show in my stdout to know what it thorws.
+
+
+## Testing error raises with session
+
+During testing, if the raise did happen, the session state itself needs to be rolledback, otherwise, the fixture trying to cleanup the session won't work. So I have to rollback per raises I do, that way the session state is in good shape to be used normally.

@@ -9,3 +9,4 @@ def test_reject_item_with_negative_price(test_session):
     test_session.add(item_with_negative_price)
     with raises(IntegrityError):
         test_session.commit()
+    test_session.rollback()

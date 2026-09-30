@@ -61,11 +61,17 @@ Examples:
 - rename_customer_to_client
 - create_fk_orders_user_id
 
-## Partial index condition (postgresql_where)
+## Never delete, snapshot next to every FK
 
-The documentation says that I have to use postgresql_where but it does not explicitly say what value it expects. So after tyring and what worked is that I have to use the text construct and passes what comes after the WHERE in sql instructions.
+Staff never delete on paper, they just stop writing old things down. So the app has no delete feature at all, only create, read and update. This keeps things simple:
+- Every FK is required, `Mapped[int]`, since what it points at never disappears.
+- No `ondelete` needed. The default FK behavior already blocks deleting a row that is referenced, which is a free safety net.
+- No `deleted_at` column, no partial unique index, no filtering deleted rows. Plain unique constraints are enough.
+- Every FK on orders has a required snapshot column next to it, e.g. `buyer_id` and `buyer_name`, `delivery_method_id` and `delivery_method_name`. Editing the live record, like fixing a typo, never changes past orders.
 
-postgresql_where=text("deleted_at IS NULL")
+Search has two modes: search the snapshot for what was written on the order, or follow the FK for the current value.
+
+Old unused entries will clutter pick lists over time. For now show the most recently used on top. If staff complain, add a `hidden` flag that only affects pick lists.
 
 ## Updated at trigger
 
@@ -95,7 +101,7 @@ Alembic already uses the ini getter and setter in many places, so the smaller ch
 
 ## Ruff issue with string types in mapped classes
 
-I need to add # noqa: UP037 when I have the following Mapped[list["PersonPhone"]]. There is another way where I have to import something but I figured just a few character comments is fine rather than introducing more things. This way its just a few comment character while keeping the codebase aligned with how the documentation wants it. This avoids odd suprises in the future.
+I need to add # noqa: UP037 when I have the following Mapped[list["PersonAddress"]]. There is another way where I have to import something but I figured just a few character comments is fine rather than introducing more things. This way its just a few comment character while keeping the codebase aligned with how the documentation wants it. This avoids odd suprises in the future.
 
 
 ## How testing works using pytest fixture with alembic
@@ -113,3 +119,5 @@ The documentations only mentions error classes caused by dbapi. It does not ment
 ## Testing error raises with session
 
 During testing, if the raise did happen, the session state itself needs to be rolledback, otherwise, the fixture trying to cleanup the session won't work. So I have to rollback per raises I do, that way the session state is in good shape to be used normally.
+
+Always pass `match=` with the constraint or column name, e.g. `raises(IntegrityError, match="ck_items_name_normalized")`. Every constraint violation is an IntegrityError, so without `match=` the test can pass for the wrong reason, like a missing required column instead of the check I meant to test. Also make sure the rest of the row is valid so only the thing under test is wrong.

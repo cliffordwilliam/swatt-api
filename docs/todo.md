@@ -37,6 +37,7 @@ This document holds the list of things I plan to do in the future so that I do n
 - [ ] Fill in the `pyproject.toml` description.
 - [ ] Review the dependencies version in my pyproject.toml file
 - [ ] Review the dependencies that I need to change later in production such as the `psycopg[binary]`
+- [ ] In production, split the database user into two so the database itself refuses deletes. A migration user that owns the tables and is only used by Alembic. An app user for FastAPI with only `GRANT SELECT, INSERT, UPDATE`, no `DELETE`. Right now everything uses one superuser, which skips permission checks. Until then the API has no delete endpoint, and the default FK behavior already blocks deleting referenced rows.
 
 ## Ideas if staff complain
 

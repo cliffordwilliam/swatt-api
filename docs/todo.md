@@ -5,7 +5,7 @@ This document holds the list of things I plan to do in the future so that I do n
 ## Do before FastAPI routes
 
 - [ ] Never delete records, so every FK is required and has a snapshot next to it. Staff only create, read and update, like on paper where they just stop writing old things down.
-  - [ ] Add `Mapped[int]` to `buyer_id`, `recipient_id`, `delivery_method_id`, `payment_method_id`, `order_status_id` and `PersonAddress.person_id` so they become NOT NULL and typed. Right now they are nullable by accident because they have no `Mapped` annotation.
+  - [x] Add `Mapped[int]` to `buyer_id`, `recipient_id`, `delivery_method_id`, `payment_method_id`, `order_status_id` and `PersonAddress.person_id` so they become NOT NULL and typed. Right now they are nullable by accident because they have no `Mapped` annotation.
   - [ ] Add lookup snapshot columns on orders: `delivery_method_name`, `payment_method_name`, `order_status_name`, all required, same `String(30)` as the lookup names.
   - [ ] Keep the default FK ON DELETE behavior, it already blocks deleting referenced rows. No `ondelete` needed.
   - [ ] Update the initial migration and rebuild both databases, fine since there is no production data yet. After production this must be a new migration.

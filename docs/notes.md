@@ -121,3 +121,7 @@ The documentations only mentions error classes caused by dbapi. It does not ment
 During testing, if the raise did happen, the session state itself needs to be rolledback, otherwise, the fixture trying to cleanup the session won't work. So I have to rollback per raises I do, that way the session state is in good shape to be used normally.
 
 Always pass `match=` with the constraint or column name, e.g. `raises(IntegrityError, match="ck_items_name_normalized")`. Every constraint violation is an IntegrityError, so without `match=` the test can pass for the wrong reason, like a missing required column instead of the check I meant to test. Also make sure the rest of the row is valid so only the thing under test is wrong.
+
+## Making FK required with Mapped
+
+We can use the mapped_column.nullable attribute but that does not add typing. So instead we rely primarily on Mapped to govern if its required or not. Note that if the type is BigInt but we Mapped[int] its okay because the FK would infer based on what it is pointing at so it will correctly store it in db as BigInt and you get to work with int.

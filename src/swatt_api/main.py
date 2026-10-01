@@ -158,7 +158,7 @@ class PersonAddress(Base):
     longitude: Mapped[float] = mapped_column(Numeric(9, 6))
 
     # Belong to one person.
-    person_id = mapped_column(ForeignKey("persons.id"))
+    person_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
 
     created_at: Mapped[timestamp]
     updated_at: Mapped[timestamp]
@@ -195,13 +195,13 @@ class Order(Base):
     # Display both existing and Android contact options,
     # either add or use existing person.
     # Then let them be able to adjust the snapshot value if need be.
-    buyer_id = mapped_column(ForeignKey("persons.id"))
+    buyer_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     buyer_name: Mapped[str] = mapped_column(String(255))
     buyer_phone: Mapped[str] = mapped_column(String(25))
     buyer_address: Mapped[str] = mapped_column(Text)
 
     # Recipient pointer and on creation snapshot value.
-    recipient_id = mapped_column(ForeignKey("persons.id"))
+    recipient_id: Mapped[int] = mapped_column(ForeignKey("persons.id"))
     recipient_name: Mapped[str] = mapped_column(String(255))
     recipient_phone: Mapped[str] = mapped_column(String(25))
     recipient_address: Mapped[str] = mapped_column(Text)
@@ -209,9 +209,9 @@ class Order(Base):
     # Lookup table pointers.
     # Display existing or add new one option. If they do not like it,
     # they can switch or make a new one but never updates or delete existing.
-    delivery_method_id = mapped_column(ForeignKey("delivery_methods.id"))
-    payment_method_id = mapped_column(ForeignKey("payment_methods.id"))
-    order_status_id = mapped_column(ForeignKey("order_statuses.id"))
+    delivery_method_id: Mapped[int] = mapped_column(ForeignKey("delivery_methods.id"))
+    payment_method_id: Mapped[int] = mapped_column(ForeignKey("payment_methods.id"))
+    order_status_id: Mapped[int] = mapped_column(ForeignKey("order_statuses.id"))
 
     # Order money and precomputed values.
     shipping_cost: Mapped[int] = mapped_column(BigInteger)
@@ -244,8 +244,8 @@ class OrderItem(Base):
     __tablename__ = "order_items"
 
     # Relations.
-    order_id = mapped_column(ForeignKey("orders.id"), primary_key=True)
-    item_id = mapped_column(ForeignKey("items.id"), primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), primary_key=True)
+    item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), primary_key=True)
 
     # Item attribute snapshot at order time to respect history.
     item_name: Mapped[str] = mapped_column(String(100))
